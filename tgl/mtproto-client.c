@@ -1135,7 +1135,7 @@ static int process_rpc_message (struct tgl_state *TLS, struct connection *c, str
     fail_session (TLS, S);
     return -1;
   }
-  //assert (in_ptr == in_end);
+  assert (in_ptr == in_end);
   return 0;
 }
 

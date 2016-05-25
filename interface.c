@@ -2387,21 +2387,24 @@ void print_msg_list_gw (struct tgl_state *TLSR, void *extra, int success, int nu
 
 void get_msg_list_history_views (struct tgl_state *TLSR, void *extra, int success, int num, struct tgl_message *ML[]) {
 	tgl_peer_id_t id = TLSR->tmpid;
-	printf("got %d messages now gonna got views\n", num);
 	tgl_do_get_history_views(TLSR, id, num, ML, print_msg_list_history_gw, extra);
-//	print_msg_list_history_gw(TLSR, extra, success, num, ML);
+	print_msg_list_gw (TLSR, extra, success, num, ML);
+	  if (num > 0) {
+		if (tgl_cmp_peer_id (ML[0]->to_id, TLS->our_id)) {
+		  tgl_do_messages_mark_read (TLS, ML[0]->to_id, ML[0]->server_id, 0, NULL, NULL);
+		} else {
+		  tgl_do_messages_mark_read (TLS, ML[0]->from_id, ML[0]->server_id, 0, NULL, NULL);
+		}
+	  }
 }
 
 void print_msg_list_history_gw (struct tgl_state *TLSR, void *extra, int success, int num, int* views) {
-	printf("got  %d views", num);
-//  print_msg_list_gw (TLSR, extra, success, num, ML);
-//  if (num > 0) {
-//    if (tgl_cmp_peer_id (ML[0]->to_id, TLS->our_id)) {
-//      tgl_do_messages_mark_read (TLS, ML[0]->to_id, ML[0]->server_id, 0, NULL, NULL);
-//    } else {
-//      tgl_do_messages_mark_read (TLS, ML[0]->from_id, ML[0]->server_id, 0, NULL, NULL);
-//    }
-//  }
+	int i;
+	struct in_ev *ev = extra;
+	for(i = 0; i < num; i++)
+	{
+		mprintf(ev, "%d\n", views[i]);
+	}
 }
 
 void print_msg_gw (struct tgl_state *TLSR, void *extra, int success, struct tgl_message *M) {

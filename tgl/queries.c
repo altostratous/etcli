@@ -436,7 +436,8 @@ int tglq_query_error (struct tgl_state *TLS, long long id) {
 static int packed_buffer[MAX_PACKED_SIZE / 4];
 
 int tglq_query_result (struct tgl_state *TLS, long long id) {
-  vlogprintf (E_DEBUG, "result for query #%" INT64_PRINTF_MODIFIER "d. Size %ld bytes\n", id, (long)4 * (in_end - in_ptr));
+  vlogprintf (E_DEBUG, "result plated for query #%" INT64_PRINTF_MODIFIER "d. Size %ld bytes\n", id, (long)4 * (in_end - in_ptr));
+
   int op = prefetch_int ();
   int *end = 0;
   int *eend = 0;
@@ -451,8 +452,10 @@ int tglq_query_result (struct tgl_state *TLS, long long id) {
     in_ptr = packed_buffer;
     in_end = in_ptr + total_out / 4;
   }
+  vlogprintf (E_DEBUG, "before getting query #%" INT64_PRINTF_MODIFIER "d. Size %ld bytes\n", id, (long)4 * (in_end - in_ptr));
   struct query *q = tglq_query_get (TLS, id);
-  printf("no error till pointnig query!");
+  vlogprintf (E_DEBUG, "after getting query #%" INT64_PRINTF_MODIFIER "d. Size %ld bytes\n", id, (long)4 * (in_end - in_ptr));
+
   if (!q) {
     vlogprintf (E_WARNING, "No such query\n");
     in_ptr = in_end;
@@ -461,7 +464,10 @@ int tglq_query_result (struct tgl_state *TLS, long long id) {
       TLS->timer_methods->remove (q->ev);
     }
     TLS->queries_tree = tree_delete_query (TLS->queries_tree, q);
+    vlogprintf (E_DEBUG, "chekkcing if theres answer #%" INT64_PRINTF_MODIFIER "d. Size %ld bytes\n", id, (long)4 * (in_end - in_ptr));
+
     if (q->methods && q->methods->on_answer) {
+      vlogprintf (E_DEBUG, "%s theres answer #%" INT64_PRINTF_MODIFIER "d. Size %ld bytes\n", q->methods->name,  id, (long)4 * (in_end - in_ptr));
       assert (q->type);
       int *save = in_ptr;
       vlogprintf (E_DEBUG, "in_ptr = %p, end_ptr = %p\n", in_ptr, in_end);
@@ -1536,9 +1542,28 @@ static struct query_methods get_history_methods = {
   .name = "get history"
 };
 
+static int get_history_views_on_answer (struct tgl_state *TLS, struct query *q, void *D) {
+		printf("on answer is working");
+	  struct tl_ds_vector *DS_V = D;
+
+	  int n = DS_LVAL (DS_V->f1);
+
+	  int *r = talloc (4 * n);
+	  int i;
+	  for (i = 0; i < n; i++) {
+	    r[i] = *(int *)DS_V->f2[i];
+	  }
+
+	  if (q->callback) {
+	    ((void (*)(struct tgl_state *, void *, int, int, int *))q->callback) (TLS, q->callback_extra, 1, n, r);
+	  }
+	  tfree (r, 4 * n);
+	  return 0;
+}
+
 static struct query_methods get_history_views_methods = {
-  .on_answer = NULL,//get_history_on_answer,
-  .on_error = NULL, //get_history_on_error,
+  .on_answer = get_history_views_on_answer,//get_history_on_answer,
+  .on_error = q_list_on_error, //get_history_on_error,
   .type = TYPE_TO_PARAM_1(vector, TYPE_TO_PARAM (bare_int)),
   .name = "get history views"
 };
@@ -1624,7 +1649,7 @@ void tgl_do_get_history_views (struct tgl_state *TLS, tgl_peer_id_t id, int num,
   out_int(1);
 
   printf("arguments added\n");
-  tglq_send_query (TLS, TLS->DC_working, packet_ptr - packet_buffer, packet_buffer, &get_history_views_methods, 0, callback, callback_extra);
+  tglq_send_query (TLS, TLS->DC_working, packet_ptr - packet_buffer, packet_buffer, &get_history_views_methods, NULL, callback, callback_extra);
 
 //  tgl_peer_id_t* C = &id;
 //  if (tgl_get_peer_type (E->id) != TGL_PEER_CHANNEL || (C && (C->flags & TGLCHF_MEGAGROUP))) {
