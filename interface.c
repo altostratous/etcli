@@ -2381,6 +2381,10 @@ void print_msg_list_gw (struct tgl_state *TLSR, void *extra, int success, int nu
   mprint_end (ev);
 }
 
+void get_msg_list_history_views (struct tgl_state *TLSR, void *extra, int success, int num, struct tgl_message *ML[]) {
+	print_msg_list_history_gw(TLSR, extra, success, num, ML);
+}
+
 void print_msg_list_history_gw (struct tgl_state *TLSR, void *extra, int success, int num, struct tgl_message *ML[]) {
   print_msg_list_gw (TLSR, extra, success, num, ML);
   if (num > 0) {
