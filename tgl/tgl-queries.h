@@ -2,6 +2,7 @@
 #define __TGL_QUERIES_H__
 
 #include "tgl.h"
+#include "queries.h"
 
 void tgl_do_get_terms_of_service (struct tgl_state *TLS, void (*callback)(struct tgl_state *TLS, void *callback_extra, int success, const char *ans), void *callback_extra);
 
@@ -235,6 +236,7 @@ void tgl_do_messages_mark_read (struct tgl_state *TLS, tgl_peer_id_t id, int max
 // only locally cached messages returned
 // also marks messages from this chat as read
 void tgl_do_get_history (struct tgl_state *TLS, tgl_peer_id_t id, int offset, int limit, int offline_mode, void (*callback)(struct tgl_state *TLS, void *callback_extra, int success, int size, struct tgl_message *list[]), void *callback_extra);
+void tgl_do_get_history_views (struct tgl_state *TLS, tgl_peer_id_t id, int num, struct tgl_message *ML[], void (*callback)(struct tgl_state *TLS, void *callback_extra, int success, int size, int views[]), void *callback_extra);
 
 // sends typing event to chat
 // set status=tgl_typing_typing for default typing event

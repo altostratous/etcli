@@ -48,6 +48,7 @@
 
 #include "interface.h"
 #include "telegram.h"
+#include <stdio.h>
 
 #ifdef EVENT_V2
 #include <event2/event.h>
@@ -96,6 +97,7 @@
 #include <errno.h>
 
 #include "tgl/tree.h"
+#include "tgl/queries.h"
 
 struct username_peer_pair {
   const char *username;
@@ -693,7 +695,8 @@ int disable_msg_preview;
 
 void print_user_list_gw (struct tgl_state *TLS, void *extra, int success, int num, struct tgl_user *UL[]);
 void print_msg_list_gw (struct tgl_state *TLS, void *extra, int success, int num, struct tgl_message *ML[]);
-void print_msg_list_history_gw (struct tgl_state *TLS, void *extra, int success, int num, struct tgl_message *ML[]);
+void print_msg_list_history_gw (struct tgl_state *TLS, void *extra, int success, int num, int* views);
+void get_msg_list_history_views (struct tgl_state *TLS, void *extra, int success, int num, struct tgl_message *ML[]);
 void print_msg_list_success_gw (struct tgl_state *TLS, void *extra, int success, int num, struct tgl_message *ML[]);
 void print_dialog_list_gw (struct tgl_state *TLS, void *extra, int success, int size, tgl_peer_id_t peers[], tgl_message_id_t *last_msg_id[], int unread_count[]);
 void print_chat_info_gw (struct tgl_state *TLS, void *extra, int success, struct tgl_chat *C);
@@ -1446,7 +1449,8 @@ void do_mark_read (struct command *command, int arg_num, struct arg args[], stru
 void do_history (struct command *command, int arg_num, struct arg args[], struct in_ev *ev) {
   assert (arg_num == 3);
   if (ev) { ev->refcnt ++; }
-  tgl_do_get_history (TLS, args[0].peer_id, args[2].num != NOT_FOUND ? args[2].num : 0, args[1].num != NOT_FOUND ? args[1].num : 40, offline_mode, print_msg_list_history_gw, ev);
+  TLS->tmpid = args[0].peer_id;
+  tgl_do_get_history (TLS, args[0].peer_id, args[2].num != NOT_FOUND ? args[2].num : 0, args[1].num != NOT_FOUND ? args[1].num : 40, offline_mode, get_msg_list_history_views, ev);
 }
 
 void print_fail (struct in_ev *ev);
@@ -2382,18 +2386,22 @@ void print_msg_list_gw (struct tgl_state *TLSR, void *extra, int success, int nu
 }
 
 void get_msg_list_history_views (struct tgl_state *TLSR, void *extra, int success, int num, struct tgl_message *ML[]) {
-	print_msg_list_history_gw(TLSR, extra, success, num, ML);
+	tgl_peer_id_t id = TLSR->tmpid;
+	printf("got %d messages now gonna got views\n", num);
+	tgl_do_get_history_views(TLSR, id, num, ML, print_msg_list_history_gw, extra);
+//	print_msg_list_history_gw(TLSR, extra, success, num, ML);
 }
 
-void print_msg_list_history_gw (struct tgl_state *TLSR, void *extra, int success, int num, struct tgl_message *ML[]) {
-  print_msg_list_gw (TLSR, extra, success, num, ML);
-  if (num > 0) {
-    if (tgl_cmp_peer_id (ML[0]->to_id, TLS->our_id)) {
-      tgl_do_messages_mark_read (TLS, ML[0]->to_id, ML[0]->server_id, 0, NULL, NULL);
-    } else {
-      tgl_do_messages_mark_read (TLS, ML[0]->from_id, ML[0]->server_id, 0, NULL, NULL);
-    }
-  }
+void print_msg_list_history_gw (struct tgl_state *TLSR, void *extra, int success, int num, int* views) {
+	printf("got  %d views", num);
+//  print_msg_list_gw (TLSR, extra, success, num, ML);
+//  if (num > 0) {
+//    if (tgl_cmp_peer_id (ML[0]->to_id, TLS->our_id)) {
+//      tgl_do_messages_mark_read (TLS, ML[0]->to_id, ML[0]->server_id, 0, NULL, NULL);
+//    } else {
+//      tgl_do_messages_mark_read (TLS, ML[0]->from_id, ML[0]->server_id, 0, NULL, NULL);
+//    }
+//  }
 }
 
 void print_msg_gw (struct tgl_state *TLSR, void *extra, int success, struct tgl_message *M) {

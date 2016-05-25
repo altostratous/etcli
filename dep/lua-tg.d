@@ -59,9 +59,10 @@ objs/lua-tg.o: lua-tg.c /usr/include/stdc-predef.h config.h lua-tg.h \
  /usr/include/x86_64-linux-gnu/bits/socket2.h \
  /usr/include/x86_64-linux-gnu/bits/in.h /usr/include/rpc/netdb.h \
  /usr/include/x86_64-linux-gnu/bits/netdb.h tgl/tgl-queries.h tgl/tgl.h \
- interface.h tgl/tgl-structures.h /usr/include/assert.h tgl/tgl-fetch.h \
+ tgl/queries.h tgl/tgl-structures.h /usr/include/assert.h tgl/tgl-fetch.h \
  auto/auto-types.h tgl/auto.h tgl/tools.h tgl/crypto/err.h \
- tgl/crypto/rand.h tgl/tgl-layout.h
+ tgl/crypto/rand.h tgl/auto.h interface.h tgl/tgl-structures.h \
+ tgl/tgl-layout.h
 
 /usr/include/stdc-predef.h:
 
@@ -235,7 +236,7 @@ tgl/tgl-queries.h:
 
 tgl/tgl.h:
 
-interface.h:
+tgl/queries.h:
 
 tgl/tgl-structures.h:
 
@@ -252,5 +253,11 @@ tgl/tools.h:
 tgl/crypto/err.h:
 
 tgl/crypto/rand.h:
+
+tgl/auto.h:
+
+interface.h:
+
+tgl/tgl-structures.h:
 
 tgl/tgl-layout.h:

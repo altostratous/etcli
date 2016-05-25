@@ -264,6 +264,8 @@ struct tgl_state {
   int is_bot;
 
   int last_temp_id;
+
+  tgl_peer_id_t tmpid;
 };
 #pragma pack(pop)
 //extern struct tgl_state tgl_state;

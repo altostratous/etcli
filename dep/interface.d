@@ -63,15 +63,16 @@ objs/interface.o: interface.c /usr/include/stdc-predef.h config.h \
  /usr/include/x86_64-linux-gnu/bits/siginfo.h \
  /usr/include/x86_64-linux-gnu/bits/netdb.h \
  /usr/include/event2/bufferevent.h /usr/include/event2/buffer.h lua-tg.h \
- tgl/tgl.h tgl/tgl-queries.h loop.h /usr/include/jansson.h \
- /usr/include/jansson_config.h json-tg.h tgl/mtproto-common.h \
- tgl/crypto/rsa_pem.h tgl/crypto/bn.h tgl/crypto/bn.h tgl/tools.h \
- auto/constants.h tgl/tgl.h tgl/tgl-inner.h auto/auto-store.h \
- auto/auto-fetch-ds.h auto/auto-types.h auto/auto-free-ds.h \
- /usr/include/errno.h /usr/include/x86_64-linux-gnu/bits/errno.h \
- /usr/include/linux/errno.h /usr/include/x86_64-linux-gnu/asm/errno.h \
+ tgl/tgl.h tgl/tgl-queries.h tgl/queries.h tgl/tgl-structures.h \
+ tgl/auto.h loop.h /usr/include/jansson.h /usr/include/jansson_config.h \
+ json-tg.h tgl/mtproto-common.h tgl/crypto/rsa_pem.h tgl/crypto/bn.h \
+ tgl/crypto/bn.h tgl/tools.h auto/constants.h tgl/tgl.h tgl/tgl-inner.h \
+ auto/auto-store.h auto/auto-fetch-ds.h auto/auto-types.h \
+ auto/auto-free-ds.h /usr/include/errno.h \
+ /usr/include/x86_64-linux-gnu/bits/errno.h /usr/include/linux/errno.h \
+ /usr/include/x86_64-linux-gnu/asm/errno.h \
  /usr/include/asm-generic/errno.h /usr/include/asm-generic/errno-base.h \
- tgl/tree.h /usr/include/memory.h LICENSE.h
+ tgl/tree.h /usr/include/memory.h tgl/queries.h LICENSE.h
 
 /usr/include/stdc-predef.h:
 
@@ -277,6 +278,12 @@ tgl/tgl.h:
 
 tgl/tgl-queries.h:
 
+tgl/queries.h:
+
+tgl/tgl-structures.h:
+
+tgl/auto.h:
+
 loop.h:
 
 /usr/include/jansson.h:
@@ -324,5 +331,7 @@ auto/auto-free-ds.h:
 tgl/tree.h:
 
 /usr/include/memory.h:
+
+tgl/queries.h:
 
 LICENSE.h:

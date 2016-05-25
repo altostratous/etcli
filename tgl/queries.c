@@ -452,6 +452,7 @@ int tglq_query_result (struct tgl_state *TLS, long long id) {
     in_end = in_ptr + total_out / 4;
   }
   struct query *q = tglq_query_get (TLS, id);
+  printf("no error till pointnig query!");
   if (!q) {
     vlogprintf (E_WARNING, "No such query\n");
     in_ptr = in_end;
@@ -1450,6 +1451,7 @@ struct get_history_extra {
   int limit;
   int offset;
   int max_id;
+  void *callback_extra;
 };
 
 static void _tgl_do_get_history (struct tgl_state *TLS, struct get_history_extra *E, void (*callback)(struct tgl_state *TLS,void *callback_extra, int success, int size, struct tgl_message *list[]), void *callback_extra);
@@ -1534,7 +1536,14 @@ static struct query_methods get_history_methods = {
   .name = "get history"
 };
 
-void tgl_do_get_local_history (struct tgl_state *TLS, tgl_peer_id_t id, int offset, int limit, void (*callback)(struct tgl_state *TLS,void *callback_extra, int success, int size, struct tgl_message *list[]), void *callback_extra) {
+static struct query_methods get_history_views_methods = {
+  .on_answer = NULL,//get_history_on_answer,
+  .on_error = NULL, //get_history_on_error,
+  .type = TYPE_TO_PARAM_1(vector, TYPE_TO_PARAM (bare_int)),
+  .name = "get history views"
+};
+
+static void tgl_do_get_local_history (struct tgl_state *TLS, tgl_peer_id_t id, int offset, int limit, void (*callback)(struct tgl_state *TLS,void *callback_extra, int success, int size, struct tgl_message *list[]), void *callback_extra) {
   tgl_peer_t *P = tgl_peer_get (TLS, id);
   if (!P || !P->last) {
     tgl_set_query_error (TLS, EINVAL, "unknown peer");
@@ -1595,6 +1604,48 @@ static void _tgl_do_get_history (struct tgl_state *TLS, struct get_history_extra
   tglq_send_query (TLS, TLS->DC_working, packet_ptr - packet_buffer, packet_buffer, &get_history_methods, E, callback, callback_extra);
 }
 
+
+void tgl_do_get_history_views (struct tgl_state *TLS, tgl_peer_id_t id, int num, struct tgl_message *ML[], void (*callback)(struct tgl_state *TLS,void *callback_extra, int success, int size, int views[]), void *callback_extra) {
+  clear_packet ();
+  printf("packet cleared\n");
+  out_int (CODE_messages_get_messages_views);
+
+  out_peer_id (TLS, id);
+
+  out_int (CODE_vector);
+  out_int (num);
+
+  int i;
+  for(i = 0; i < num; i++)
+  {
+	  out_int(ML[i]->permanent_id.id);
+  }
+
+  out_int(1);
+
+  printf("arguments added\n");
+  tglq_send_query (TLS, TLS->DC_working, packet_ptr - packet_buffer, packet_buffer, &get_history_views_methods, 0, callback, callback_extra);
+
+//  tgl_peer_id_t* C = &id;
+//  if (tgl_get_peer_type (E->id) != TGL_PEER_CHANNEL || (C && (C->flags & TGLCHF_MEGAGROUP))) {
+//    outfirst_int (CODE_messages_get_history);
+//    out_peer_id (TLS, E->id);
+//  } else {
+//    out_int (CODE_channels_get_important_history);
+//
+//    out_int (CODE_input_channel);
+//    out_int (tgl_get_peer_id (E->id));
+//    out_long (E->id.access_hash);
+//  }
+//  out_int (E->max_id);
+//  out_int (E->offset);
+//  out_int (E->limit);
+//  out_int (0);
+//  out_int (0);
+//  tglq_send_query (TLS, TLS->DC_working, packet_ptr - packet_buffer, packet_buffer, &get_history_methods, E, callback, callback_extra);
+}
+
+
 void tgl_do_get_history (struct tgl_state *TLS, tgl_peer_id_t id, int offset, int limit, int offline_mode, void (*callback)(struct tgl_state *TLS, void *callback_extra, int success, int size, struct tgl_message *list[]), void *callback_extra) {
   if (tgl_get_peer_type (id) == TGL_PEER_ENCR_CHAT || offline_mode) {
     tgl_do_get_local_history (TLS, id, offset, limit, callback, callback_extra);
@@ -1605,6 +1656,7 @@ void tgl_do_get_history (struct tgl_state *TLS, tgl_peer_id_t id, int offset, in
   E->id = id;
   E->limit = limit;
   E->offset = offset;
+  E->callback_extra = callback_extra;
   _tgl_do_get_history (TLS, E, callback, callback_extra);
 }
 /* }}} */
@@ -4383,7 +4435,7 @@ static int get_messages_on_answer (struct tgl_state *TLS, struct query *q, void 
 static struct query_methods get_messages_methods = {
   .on_answer = get_messages_on_answer,
   .on_error = q_ptr_on_error,
-  .type = TYPE_TO_PARAM (messages_messages),
+  .type = TYPE_TO_PARAM (vector),
   .name = "get messages"
 };
 

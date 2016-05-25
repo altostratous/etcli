@@ -37,6 +37,7 @@ struct query_methods {
   double timeout;
 };
 
+
 struct query {
   long long msg_id;
   int data_len;

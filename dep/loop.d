@@ -76,7 +76,8 @@ objs/loop.o: loop.c /usr/include/stdc-predef.h config.h \
  auto/auto-types.h tgl/auto.h tgl/tools.h tgl/crypto/err.h \
  tgl/crypto/rand.h tgl/tgl-layout.h telegram.h loop.h lua-tg.h tgl/tgl.h \
  tgl/tgl-binlog.h tgl/tgl-net.h tgl/tgl-timers.h tgl/tgl-queries.h \
- /usr/include/openssl/sha.h /usr/include/openssl/e_os2.h \
+ tgl/queries.h tgl/tgl-structures.h tgl/auto.h /usr/include/openssl/sha.h \
+ /usr/include/openssl/e_os2.h \
  /usr/include/x86_64-linux-gnu/openssl/opensslconf.h
 
 /usr/include/stdc-predef.h:
@@ -320,6 +321,12 @@ tgl/tgl-net.h:
 tgl/tgl-timers.h:
 
 tgl/tgl-queries.h:
+
+tgl/queries.h:
+
+tgl/tgl-structures.h:
+
+tgl/auto.h:
 
 /usr/include/openssl/sha.h:
 
