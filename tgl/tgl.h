@@ -265,7 +265,9 @@ struct tgl_state {
 
   int last_temp_id;
 
-  tgl_peer_id_t tmpid;
+  tgl_peer_id_t current_peer_id;
+
+  struct tgl_message ** messages_to_print;
 };
 #pragma pack(pop)
 //extern struct tgl_state tgl_state;

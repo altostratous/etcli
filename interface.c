@@ -1449,7 +1449,7 @@ void do_mark_read (struct command *command, int arg_num, struct arg args[], stru
 void do_history (struct command *command, int arg_num, struct arg args[], struct in_ev *ev) {
   assert (arg_num == 3);
   if (ev) { ev->refcnt ++; }
-  TLS->tmpid = args[0].peer_id;
+  TLS->current_peer_id = args[0].peer_id;
   tgl_do_get_history (TLS, args[0].peer_id, args[2].num != NOT_FOUND ? args[2].num : 0, args[1].num != NOT_FOUND ? args[1].num : 40, offline_mode, get_msg_list_history_views, ev);
 }
 
@@ -2352,7 +2352,15 @@ void print_encr_chat_success_gw (struct tgl_state *TLS, void *extra, int success
   write_secret_chat_file ();
   print_success_gw (TLS, extra, success);
 }
-
+void free_messages_to_print(int num)
+{
+	int i;
+	for(i = 0; i < num; i++)
+	{
+		free(TLS->messages_to_print[i]);
+	}
+	free(TLS->messages_to_print);
+}
 void print_msg_list_gw (struct tgl_state *TLSR, void *extra, int success, int num, struct tgl_message *ML[]) {
   assert (TLS == TLSR);
   struct in_ev *ev = extra;
@@ -2382,13 +2390,21 @@ void print_msg_list_gw (struct tgl_state *TLSR, void *extra, int success, int nu
       free (s);
     #endif
   }
+  free_messages_to_print(num);
   mprint_end (ev);
 }
 
 void get_msg_list_history_views (struct tgl_state *TLSR, void *extra, int success, int num, struct tgl_message *ML[]) {
-	tgl_peer_id_t id = TLSR->tmpid;
+	tgl_peer_id_t id = TLSR->current_peer_id;
+
+	TLSR->messages_to_print = (struct tgl_message **)talloc0(sizeof(struct tgl_message *) * num);
+	int i;
+	for(i = 0; i < num; i++)
+	{
+		TLSR->messages_to_print[i] = (struct tgl_message *)talloc0(sizeof(struct tgl_message));
+		*(TLSR->messages_to_print[i]) = *(ML[i]);
+	}
 	tgl_do_get_history_views(TLSR, id, num, ML, print_msg_list_history_gw, extra);
-	print_msg_list_gw (TLSR, extra, success, num, ML);
 	  if (num > 0) {
 		if (tgl_cmp_peer_id (ML[0]->to_id, TLS->our_id)) {
 		  tgl_do_messages_mark_read (TLS, ML[0]->to_id, ML[0]->server_id, 0, NULL, NULL);
@@ -2400,11 +2416,11 @@ void get_msg_list_history_views (struct tgl_state *TLSR, void *extra, int succes
 
 void print_msg_list_history_gw (struct tgl_state *TLSR, void *extra, int success, int num, int* views) {
 	int i;
-	struct in_ev *ev = extra;
 	for(i = 0; i < num; i++)
 	{
-		mprintf(ev, "%d\n", views[i]);
+		(TLSR->messages_to_print[i])->views_count = views[i];
 	}
+	print_msg_list_gw (TLSR, extra, success, num, TLSR->messages_to_print);
 }
 
 void print_msg_gw (struct tgl_state *TLSR, void *extra, int success, struct tgl_message *M) {
@@ -2415,19 +2431,22 @@ void print_msg_gw (struct tgl_state *TLSR, void *extra, int success, struct tgl_
     return;
   }
   if (!success) { print_fail (ev); return; }
-  mprint_start (ev);
-  if (!enable_json) {
-    print_message (ev, M);
-  } else {
-    #ifdef USE_JSON
-      json_t *res = json_pack_message (M);
-      char *s = json_dumps (res, 0);
-      mprintf (ev, "%s\n", s);
-      json_decref (res);
-      free (s);
-    #endif
-  }
-  mprint_end (ev);
+  struct tgl_message ** ML = talloc0(sizeof(struct tgl_message*));
+  *ML = M;
+  get_msg_list_history_views(TLSR, extra, success, 1, ML);
+//  mprint_start (ev);
+//  if (!enable_json) {
+//    print_message (ev, M);
+//  } else {
+//    #ifdef USE_JSON
+//      json_t *res = json_pack_message (M);
+//      char *s = json_dumps (res, 0);
+//      mprintf (ev, "%s\n", s);
+//      json_decref (res);
+//      free (s);
+//    #endif
+//  }
+//  mprint_end (ev);
 }
 
 void print_user_list_gw (struct tgl_state *TLSR, void *extra, int success, int num, struct tgl_user *UL[]) {
@@ -4451,6 +4470,10 @@ void print_message (struct in_ev *ev, struct tgl_message *M) {
   }
   if (M->flags & TGLMF_MENTION) {
     mprintf (ev, "[mention] ");
+  }
+  if (M->flags & TGLMF_POST_AS_CHANNEL)
+  {
+	  mprintf (ev, "[%d views] ", M->views_count);
   }
   if (M->message && strlen (M->message)) {
     mprintf (ev, "%s", M->message);

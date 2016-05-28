@@ -99,12 +99,15 @@ void json_pack_channel (json_t *res, tgl_peer_t *P) {
   assert (json_object_set (res, "participants_count", json_integer (P->channel.participants_count)) >= 0);
   assert (json_object_set (res, "admins_count", json_integer (P->channel.admins_count)) >= 0);
   assert (json_object_set (res, "kicked_count", json_integer (P->channel.kicked_count)) >= 0);
+  json_object_set (res, "about", json_string (P->channel.about));
+  //assert (json_object_set (res, "about", json_string (P->channel.about)) >= 0);
 }
 
 
 void json_pack_encr_chat (json_t *res, tgl_peer_t *P) {
   assert (json_object_set (res, "user", json_pack_peer (TGL_MK_USER (P->encr_chat.user_id))) >= 0);
 }
+
 
 json_t *json_pack_peer (tgl_peer_id_t id) {
   tgl_peer_t *P = tgl_peer_get (TLS, id);
@@ -461,6 +464,8 @@ json_t *json_pack_message (struct tgl_message *M) {
   assert (json_object_set (res, "service", json_boolean (M->flags & TGLMF_SERVICE)) >= 0);
   assert (json_object_set (res, "date", json_integer (M->date)) >= 0);
   
+  assert (json_object_set (res, "views", json_integer (M->views_count)) >= 0);
+
   if (!(M->flags & TGLMF_SERVICE)) {  
     if (M->message_len && M->message) {
       assert (json_object_set (res, "text", json_string (M->message)) >= 0);

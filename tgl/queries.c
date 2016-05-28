@@ -1543,7 +1543,6 @@ static struct query_methods get_history_methods = {
 };
 
 static int get_history_views_on_answer (struct tgl_state *TLS, struct query *q, void *D) {
-		printf("on answer is working");
 	  struct tl_ds_vector *DS_V = D;
 
 	  int n = DS_LVAL (DS_V->f1);
@@ -1632,7 +1631,6 @@ static void _tgl_do_get_history (struct tgl_state *TLS, struct get_history_extra
 
 void tgl_do_get_history_views (struct tgl_state *TLS, tgl_peer_id_t id, int num, struct tgl_message *ML[], void (*callback)(struct tgl_state *TLS,void *callback_extra, int success, int size, int views[]), void *callback_extra) {
   clear_packet ();
-  printf("packet cleared\n");
   out_int (CODE_messages_get_messages_views);
 
   out_peer_id (TLS, id);
@@ -1648,7 +1646,6 @@ void tgl_do_get_history_views (struct tgl_state *TLS, tgl_peer_id_t id, int num,
 
   out_int(1);
 
-  printf("arguments added\n");
   tglq_send_query (TLS, TLS->DC_working, packet_ptr - packet_buffer, packet_buffer, &get_history_views_methods, NULL, callback, callback_extra);
 
 //  tgl_peer_id_t* C = &id;
