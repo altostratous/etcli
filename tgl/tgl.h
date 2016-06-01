@@ -155,7 +155,7 @@ struct tgl_timer_methods {
 #define E_ERROR 0
 #define E_WARNING 1
 #define E_NOTICE 2
-#define E_DEBUG 6
+#define E_DEBUG 6//0 //6
 
 #define TGL_LOCK_DIFF 1
 #define TGL_LOCK_PASSWORD 2
@@ -268,6 +268,7 @@ struct tgl_state {
   tgl_peer_id_t current_peer_id;
 
   struct tgl_message ** messages_to_print;
+  int number_of_messages_to_print;
 };
 #pragma pack(pop)
 //extern struct tgl_state tgl_state;

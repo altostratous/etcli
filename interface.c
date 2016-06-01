@@ -696,6 +696,7 @@ int disable_msg_preview;
 void print_user_list_gw (struct tgl_state *TLS, void *extra, int success, int num, struct tgl_user *UL[]);
 void print_msg_list_gw (struct tgl_state *TLS, void *extra, int success, int num, struct tgl_message *ML[]);
 void print_msg_list_history_gw (struct tgl_state *TLS, void *extra, int success, int num, int* views);
+void add_channel_link (struct tgl_state *TLSR, void *extra, int success, struct tgl_channel *C);
 void get_msg_list_history_views (struct tgl_state *TLS, void *extra, int success, int num, struct tgl_message *ML[]);
 void print_msg_list_success_gw (struct tgl_state *TLS, void *extra, int success, int num, struct tgl_message *ML[]);
 void print_dialog_list_gw (struct tgl_state *TLS, void *extra, int success, int size, tgl_peer_id_t peers[], tgl_message_id_t *last_msg_id[], int unread_count[]);
@@ -2404,7 +2405,22 @@ void get_msg_list_history_views (struct tgl_state *TLSR, void *extra, int succes
 		TLSR->messages_to_print[i] = (struct tgl_message *)talloc0(sizeof(struct tgl_message));
 		*(TLSR->messages_to_print[i]) = *(ML[i]);
 	}
-	tgl_do_get_history_views(TLSR, id, num, ML, print_msg_list_history_gw, extra);
+
+	TLSR->number_of_messages_to_print = num;
+
+//	tgl_do_get_history_views(TLSR, id, num, ML, print_msg_list_history_gw, extra);
+	if (num > 0)
+	{
+		if(tgl_get_peer_type (id) == TGL_PEER_CHANNEL)
+			tgl_do_get_channel_info (TLS, id, offline_mode, add_channel_link, extra);
+		else
+			tgl_do_get_history_views(TLSR, id, num, ML, print_msg_list_history_gw, extra);
+	}
+	else
+	{
+
+		tgl_do_get_history_views(TLSR, id, num, ML, print_msg_list_history_gw, extra);
+	}
 	  if (num > 0) {
 		if (tgl_cmp_peer_id (ML[0]->to_id, TLS->our_id)) {
 		  tgl_do_messages_mark_read (TLS, ML[0]->to_id, ML[0]->server_id, 0, NULL, NULL);
@@ -2433,6 +2449,8 @@ void print_msg_gw (struct tgl_state *TLSR, void *extra, int success, struct tgl_
   if (!success) { print_fail (ev); return; }
   struct tgl_message ** ML = talloc0(sizeof(struct tgl_message*));
   *ML = M;
+  TLSR->current_peer_id = M->to_id;
+  TLSR->number_of_messages_to_print = 1;
   get_msg_list_history_views(TLSR, extra, success, 1, ML);
 //  mprint_start (ev);
 //  if (!enable_json) {
@@ -2685,6 +2703,23 @@ void print_chat_info_gw (struct tgl_state *TLSR, void *extra, int success, struc
   }
 
   mprint_end (ev);
+}
+
+void add_channel_link (struct tgl_state *TLSR, void *extra, int success, struct tgl_channel *C) {
+
+    vlogprintf (E_DEBUG, "inside add_channel_link");
+	int i;
+	for(i = 0; i < TLSR->number_of_messages_to_print; i++)
+	{
+		char* link = TLSR->messages_to_print[i]->link;
+		strcpy(link, "https://telegram.me/");
+		while(*link != '\000')
+		{
+			link++;
+		}
+		sprintf(link, "%s/%lld", C->username, TLSR->messages_to_print[i]->permanent_id.id);
+	}
+	tgl_do_get_history_views(TLSR, TLSR->current_peer_id, TLSR->number_of_messages_to_print, TLSR->messages_to_print, print_msg_list_history_gw, extra);
 }
 
 void print_channel_info_gw (struct tgl_state *TLSR, void *extra, int success, struct tgl_channel *C) {

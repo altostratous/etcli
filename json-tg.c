@@ -464,8 +464,10 @@ json_t *json_pack_message (struct tgl_message *M) {
   assert (json_object_set (res, "service", json_boolean (M->flags & TGLMF_SERVICE)) >= 0);
   assert (json_object_set (res, "date", json_integer (M->date)) >= 0);
   
-  assert (json_object_set (res, "views", json_integer (M->views_count)) >= 0);
 
+  assert (json_object_set (res, "views", json_integer (M->views_count)) >= 0);
+  assert (json_object_set (res, "post_id", json_integer (M->permanent_id.id)) >= 0);
+  assert (json_object_set (res, "link", json_string (M->link)) >= 0);
   if (!(M->flags & TGLMF_SERVICE)) {  
     if (M->message_len && M->message) {
       assert (json_object_set (res, "text", json_string (M->message)) >= 0);

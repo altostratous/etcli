@@ -615,6 +615,7 @@ typedef struct tgl_message_id {
 } tgl_message_id_t;
 
 struct tgl_message {
+  char link[200];
   int views_count;
   struct tgl_message *next_use, *prev_use;
   struct tgl_message *next, *prev;
