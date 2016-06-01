@@ -100,6 +100,7 @@ void json_pack_channel (json_t *res, tgl_peer_t *P) {
   assert (json_object_set (res, "admins_count", json_integer (P->channel.admins_count)) >= 0);
   assert (json_object_set (res, "kicked_count", json_integer (P->channel.kicked_count)) >= 0);
   json_object_set (res, "about", json_string (P->channel.about));
+  json_object_set (res, "username", json_string (P->channel.username));
   //assert (json_object_set (res, "about", json_string (P->channel.about)) >= 0);
 }
 

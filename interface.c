@@ -119,6 +119,7 @@ extern int one_string_len;
 extern char *one_string_prompt;
 extern int one_string_flags;
 extern int enable_json;
+extern int enable_link;
 int disable_auto_accept;
 int msg_num_mode;
 int permanent_msg_id_mode;
@@ -696,7 +697,7 @@ int disable_msg_preview;
 void print_user_list_gw (struct tgl_state *TLS, void *extra, int success, int num, struct tgl_user *UL[]);
 void print_msg_list_gw (struct tgl_state *TLS, void *extra, int success, int num, struct tgl_message *ML[]);
 void print_msg_list_history_gw (struct tgl_state *TLS, void *extra, int success, int num, int* views);
-void add_channel_link (struct tgl_state *TLSR, void *extra, int success, struct tgl_channel *C);
+void add_channel_link (struct tgl_state *TLSR, void *extra, int success, struct tgl_channel C);
 void get_msg_list_history_views (struct tgl_state *TLS, void *extra, int success, int num, struct tgl_message *ML[]);
 void print_msg_list_success_gw (struct tgl_state *TLS, void *extra, int success, int num, struct tgl_message *ML[]);
 void print_dialog_list_gw (struct tgl_state *TLS, void *extra, int success, int size, tgl_peer_id_t peers[], tgl_message_id_t *last_msg_id[], int unread_count[]);
@@ -2412,7 +2413,8 @@ void get_msg_list_history_views (struct tgl_state *TLSR, void *extra, int succes
 	if (num > 0)
 	{
 		if(tgl_get_peer_type (id) == TGL_PEER_CHANNEL)
-			tgl_do_get_channel_info (TLS, id, offline_mode, add_channel_link, extra);
+			//tgl_do_get_channel_info (TLS, id, offline_mode, add_channel_link, extra);
+			add_channel_link(TLSR, extra, 1, tgl_peer_get (TLSR, id)->channel);
 		else
 			tgl_do_get_history_views(TLSR, id, num, ML, print_msg_list_history_gw, extra);
 	}
@@ -2705,7 +2707,7 @@ void print_chat_info_gw (struct tgl_state *TLSR, void *extra, int success, struc
   mprint_end (ev);
 }
 
-void add_channel_link (struct tgl_state *TLSR, void *extra, int success, struct tgl_channel *C) {
+void add_channel_link (struct tgl_state *TLSR, void *extra, int success, struct tgl_channel C) {
 
     vlogprintf (E_DEBUG, "inside add_channel_link");
 	int i;
@@ -2717,7 +2719,7 @@ void add_channel_link (struct tgl_state *TLSR, void *extra, int success, struct 
 		{
 			link++;
 		}
-		sprintf(link, "%s/%lld", C->username, TLSR->messages_to_print[i]->permanent_id.id);
+		sprintf(link, "%s/%lld", C.username, TLSR->messages_to_print[i]->permanent_id.id);
 	}
 	tgl_do_get_history_views(TLSR, TLSR->current_peer_id, TLSR->number_of_messages_to_print, TLSR->messages_to_print, print_msg_list_history_gw, extra);
 }
