@@ -204,7 +204,7 @@ void socket_answer_end (struct in_ev *ev) {
 }
 
 #define mprintf(ev,...) \
-  if (ev) { if (ev->uid < 0) socket_answer_add_printf (__VA_ARGS__); else printf (__VA_ARGS__); } \
+  if (ev) { if (ev->uid < 0) socket_answer_add_printf (__VA_ARGS__); else { if (enable_json) printf ("%d#", ev->uid); printf (__VA_ARGS__);} } \
   else { printf (__VA_ARGS__); }
 
 #define mprint_start(ev,...) \
@@ -2903,7 +2903,7 @@ void print_dialog_list_gw (struct tgl_state *TLSR, void *extra, int success, int
   assert (TLS == TLSR);
   struct in_ev *ev = extra;
   if (ev && !--ev->refcnt) {
-		vlogprintf (E_DEBUG, "uid of ev %lld \n", ev->uid);
+		vlogprintf (E_DEBUG, "uid of ev %d \n", ev->uid);
 	if (ev->uid < 0){
 		free (ev);
 		return;
@@ -3250,6 +3250,7 @@ void print_peer_updates (struct in_ev *ev, int flags) {
 void json_peer_update (struct in_ev *ev, tgl_peer_t *P, unsigned flags) {
   #ifdef USE_JSON
     json_t *res = json_object ();
+    //assert (json_object_set (res, "request_id", json_integer (ev->uid)));
     assert (json_object_set (res, "event", json_string ("updates")) >= 0);
     assert (json_object_set (res, "peer", json_pack_peer (P->id)) >= 0);
     assert (json_object_set (res, "updates", json_pack_updates (flags)) >= 0);
@@ -3538,7 +3539,7 @@ struct tgl_update_callback upd_cb = {
 
 void call_command(struct command *command, int argnum, struct arg args[], struct in_ev *ev){
 	vlogprintf (E_DEBUG, "inside call_command");
-	static long long int last_uid = 0;
+	static int last_uid = 0;
 	if (ev){
 		ev->uid = -1;
 	} else {
