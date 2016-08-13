@@ -252,6 +252,8 @@ struct query *tglq_send_query_ex (struct tgl_state *TLS, struct tgl_dc *DC, int 
   TLS->timer_methods->insert (q->ev, q->methods->timeout ? q->methods->timeout : QUERY_TIMEOUT);  
 
   q->extra = extra;
+
+	vlogprintf (E_DEBUG, "setting callback in query %p\n", callback);
   q->callback = callback;
   q->callback_extra = callback_extra;
   TLS->active_queries ++;
@@ -469,6 +471,7 @@ int tglq_query_result (struct tgl_state *TLS, long long id) {
     if (q->methods && q->methods->on_answer) {
       vlogprintf (E_DEBUG, "%s theres answer #%" INT64_PRINTF_MODIFIER "d. Size %ld bytes\n", q->methods->name,  id, (long)4 * (in_end - in_ptr));
       assert (q->type);
+      vlogprintf (E_DEBUG, "step forward in query result\n");
       int *save = in_ptr;
       vlogprintf (E_DEBUG, "in_ptr = %p, end_ptr = %p\n", in_ptr, in_end);
       if (skip_type_any (q->type) < 0) {
@@ -476,15 +479,21 @@ int tglq_query_result (struct tgl_state *TLS, long long id) {
         vlogprintf (E_ERROR, "0x%08x 0x%08x 0x%08x 0x%08x\n", *(save - 1), *(save), *(save + 1), *(save + 2));
         assert (0);
       }
+      vlogprintf (E_DEBUG, "step forward in query result\n");
 
       assert (in_ptr == in_end);
+      vlogprintf (E_DEBUG, "step forward in query result\n");
       in_ptr = save;
 
+      vlogprintf (E_DEBUG, "step forward in query result\n");
       void *DS = fetch_ds_type_any (q->type);
+      vlogprintf (E_DEBUG, "step forward in query result\n");
       assert (DS);
-
+      vlogprintf (E_DEBUG, "calling on answer\n");
       q->methods->on_answer (TLS, q, DS);
+      vlogprintf (E_DEBUG, "called on answer\n");
       free_ds_type_any (DS, q->type);
+      vlogprintf (E_DEBUG, "step forward in query result\n");
 
       assert (in_ptr == in_end);
     }
@@ -1705,6 +1714,8 @@ struct get_dialogs_extra {
 static void _tgl_do_get_dialog_list (struct tgl_state *TLS, struct get_dialogs_extra *E, void (*callback)(struct tgl_state *TLS, void *callback_extra, int success, int size, tgl_peer_id_t peers[], tgl_message_id_t *last_msg_id[], int unread_count[]), void *callback_extra);
 
 static int get_dialogs_on_answer (struct tgl_state *TLS, struct query *q, void *D) {
+
+	vlogprintf (E_DEBUG, "inside get_dialogs_on_answer");
   struct tl_ds_messages_dialogs *DS_MD = D;
 
   struct get_dialogs_extra *E = q->extra;
@@ -1762,6 +1773,7 @@ static int get_dialogs_on_answer (struct tgl_state *TLS, struct query *q, void *
   }
 
   vlogprintf (E_DEBUG, "dl_size = %d, total = %d\n", dl_size, E->list_offset);
+  vlogprintf (E_DEBUG, "dl size inside dilog list on answer\n");
   if (dl_size && E->list_offset < E->limit && DS_MD->magic == CODE_messages_dialogs_slice && E->list_offset < DS_LVAL (DS_MD->count)) {
     E->offset += dl_size;
     if (E->list_offset > 0) {
@@ -1777,9 +1789,12 @@ static int get_dialogs_on_answer (struct tgl_state *TLS, struct query *q, void *
         p --;
       }
     }
+
+    vlogprintf (E_DEBUG, "before _tgl_do_get_dialog_list\n");
     _tgl_do_get_dialog_list (TLS, E, q->callback, q->callback_extra);
   } else {
     if (q->callback) {
+        vlogprintf (E_DEBUG, "before calling the call back %p \n", q->callback);
       ((void (*)(struct tgl_state *TLS, void *, int, int, tgl_peer_id_t *, tgl_message_id_t **, int *))q->callback) (TLS, q->callback_extra, 1, E->list_offset, E->PL, E->LM, E->UC);
     }
     tfree (E->PL, sizeof (tgl_peer_id_t) * E->list_size);
@@ -1835,6 +1850,7 @@ static void _tgl_do_get_dialog_list (struct tgl_state *TLS, struct get_dialogs_e
     out_int (E->limit - E->list_offset);
   }
 
+	vlogprintf (E_DEBUG, "sending callback to query sender %p\n", callback);
   tglq_send_query (TLS, TLS->DC_working, packet_ptr - packet_buffer, packet_buffer, &get_dialogs_methods, E, callback, callback_extra);
 }
 

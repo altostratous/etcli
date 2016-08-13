@@ -61,6 +61,7 @@ struct in_ev {
   int refcnt;
   int error;
   int fd;
+  long long int uid;
 };
 
 

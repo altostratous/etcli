@@ -204,22 +204,22 @@ void socket_answer_end (struct in_ev *ev) {
 }
 
 #define mprintf(ev,...) \
-  if (ev) { socket_answer_add_printf (__VA_ARGS__); } \
-  else { printf (__VA_ARGS__); } 
+  if (ev) { if (ev->uid < 0) socket_answer_add_printf (__VA_ARGS__); else printf (__VA_ARGS__); } \
+  else { printf (__VA_ARGS__); }
 
 #define mprint_start(ev,...) \
   if (!ev) { print_start (__VA_ARGS__); } \
-  else { socket_answer_start (); }
+  else { if (ev->uid < 0) socket_answer_start (); else print_start (__VA_ARGS__);}
   
 #define mprint_end(ev,...) \
   if (!ev) { print_end (__VA_ARGS__); } \
-  else { socket_answer_end (ev); }
+  else { if (ev->uid < 0) socket_answer_end (ev); else  print_end (__VA_ARGS__);}
 
 #define mpush_color(ev,...) \
-  if (!ev) { push_color (__VA_ARGS__); }
+  if (!ev) { push_color (__VA_ARGS__); } else if (ev->uid >= 0) { push_color (__VA_ARGS__); }
 
 #define mpop_color(ev,...) \
-  if (!ev) { pop_color (__VA_ARGS__); }
+  if (!ev) { pop_color (__VA_ARGS__); } else if (ev->uid >= 0) { pop_color (__VA_ARGS__); }
 
 static void unescape_token (char *start, char *end) {
   static char cur_token_buff[(1 << 20) + 1];
@@ -1415,6 +1415,8 @@ void do_export_channel_link (struct command *command, int arg_num, struct arg ar
 /* {{{ WORKING WITH DIALOG LIST */
 
 void do_dialog_list (struct command *command, int arg_num, struct arg args[], struct in_ev *ev) {
+
+	vlogprintf (E_DEBUG, "inside do_dialog_list");
   assert (arg_num <= 2);
   if (ev) { ev->refcnt ++; }
   tgl_do_get_dialog_list (TLS, args[0].num != NOT_FOUND ? args[0].num : 100, args[1].num != NOT_FOUND ? args[1].num : 0, print_dialog_list_gw, ev);
@@ -2333,8 +2335,10 @@ void print_success_gw (struct tgl_state *TLSR, void *extra, int success) {
   assert (TLS == TLSR);
   struct in_ev *ev = extra;
   if (ev && !--ev->refcnt) {
-    free (ev);
-    return;
+  	if (ev->uid < 0){
+  		free (ev);
+  		return;
+  	}
   }
   if (!success) { print_fail (ev); return; }
   else { print_success (ev); return; }
@@ -2367,8 +2371,10 @@ void print_msg_list_gw (struct tgl_state *TLSR, void *extra, int success, int nu
   assert (TLS == TLSR);
   struct in_ev *ev = extra;
   if (ev && !--ev->refcnt) {
-    free (ev);
-    return;
+  	if (ev->uid < 0){
+  		free (ev);
+  		return;
+  	}
   }
   if (!success) { print_fail (ev); return; }
 
@@ -2445,8 +2451,10 @@ void print_msg_gw (struct tgl_state *TLSR, void *extra, int success, struct tgl_
   assert (TLS == TLSR);
   struct in_ev *ev = extra;
   if (ev && !--ev->refcnt) {
-    free (ev);
-    return;
+  	if (ev->uid < 0){
+  		free (ev);
+  		return;
+  	}
   }
   if (!success) { print_fail (ev); return; }
   struct tgl_message ** ML = talloc0(sizeof(struct tgl_message*));
@@ -2473,8 +2481,10 @@ void print_user_list_gw (struct tgl_state *TLSR, void *extra, int success, int n
   assert (TLS == TLSR);
   struct in_ev *ev = extra;
   if (ev && !--ev->refcnt) {
-    free (ev);
-    return;
+  	if (ev->uid < 0){
+  		free (ev);
+  		return;
+  	}
   }
   if (!success) { print_fail (ev); return; }
   mprint_start (ev);
@@ -2505,8 +2515,10 @@ void print_user_gw (struct tgl_state *TLSR, void *extra, int success, struct tgl
   assert (TLS == TLSR);
   struct in_ev *ev = extra;
   if (ev && !--ev->refcnt) {
-    free (ev);
-    return;
+  	if (ev->uid < 0){
+  		free (ev);
+  		return;
+  	}
   }
   if (!success) { print_fail (ev); return; }
   mprint_start (ev);
@@ -2529,9 +2541,11 @@ void print_chat_gw (struct tgl_state *TLSR, void *extra, int success, struct tgl
   assert (TLS == TLSR);
   struct in_ev *ev = extra;
   if (ev && !--ev->refcnt) {
-    free (ev);
-    return;
-  }
+  	if (ev->uid < 0){
+  		free (ev);
+  		return;
+  	}
+    }
   if (!success) { print_fail (ev); return; }
   mprint_start (ev);
   if (!enable_json) {
@@ -2553,9 +2567,11 @@ void print_channel_gw (struct tgl_state *TLSR, void *extra, int success, struct 
   assert (TLS == TLSR);
   struct in_ev *ev = extra;
   if (ev && !--ev->refcnt) {
-    free (ev);
-    return;
-  }
+  	if (ev->uid < 0){
+  		free (ev);
+  		return;
+  	}
+    }
   if (!success) { print_fail (ev); return; }
   mprint_start (ev);
   if (!enable_json) {
@@ -2598,9 +2614,11 @@ void print_filename_gw (struct tgl_state *TLSR, void *extra, int success, const 
   assert (TLS == TLSR);
   struct in_ev *ev = extra;
   if (ev && !--ev->refcnt) {
-    free (ev);
-    return;
-  }
+  	if (ev->uid < 0){
+  		free (ev);
+  		return;
+  	}
+    }
   if (!success) { print_fail (ev); return; }
   mprint_start (ev);
   if (!enable_json) {
@@ -2623,9 +2641,11 @@ void print_string_gw (struct tgl_state *TLSR, void *extra, int success, const ch
   assert (TLS == TLSR);
   struct in_ev *ev = extra;
   if (ev && !--ev->refcnt) {
-    free (ev);
-    return;
-  }
+  	if (ev->uid < 0){
+  		free (ev);
+  		return;
+  	}
+    }
   if (!success) { print_fail (ev); return; }
   mprint_start (ev);
   if (!enable_json) {
@@ -2647,9 +2667,11 @@ void open_filename_gw (struct tgl_state *TLSR, void *extra, int success, const c
   assert (TLS == TLSR);
   struct in_ev *ev = extra;
   if (ev && !--ev->refcnt) {
-    free (ev);
-    return;
-  }
+  	if (ev->uid < 0){
+  		free (ev);
+  		return;
+  	}
+    }
   if (ev) { return; }
   if (!success) { print_fail (ev); return; }
   static char buf[PATH_MAX];
@@ -2668,9 +2690,11 @@ void print_chat_info_gw (struct tgl_state *TLSR, void *extra, int success, struc
   assert (TLS == TLSR);
   struct in_ev *ev = extra;
   if (ev && !--ev->refcnt) {
-    free (ev);
-    return;
-  }
+  	if (ev->uid < 0){
+  		free (ev);
+  		return;
+  	}
+    }
   if (!success) { print_fail (ev); return; }
   mprint_start (ev);
   
@@ -2728,9 +2752,11 @@ void print_channel_info_gw (struct tgl_state *TLSR, void *extra, int success, st
   assert (TLS == TLSR);
   struct in_ev *ev = extra;
   if (ev && !--ev->refcnt) {
-    free (ev);
-    return;
-  }
+  	if (ev->uid < 0){
+  		free (ev);
+  		return;
+  	}
+    }
   if (!success) { print_fail (ev); return; }
   mprint_start (ev);
   
@@ -2798,9 +2824,11 @@ void print_user_info_gw (struct tgl_state *TLSR, void *extra, int success, struc
   assert (TLS == TLSR);
   struct in_ev *ev = extra;
   if (ev && !--ev->refcnt) {
-    free (ev);
-    return;
-  }
+  	if (ev->uid < 0){
+  		free (ev);
+  		return;
+  	}
+    }
   if (!success) { print_fail (ev); return; }
   mprint_start (ev);
   tgl_peer_t *C = (void *)U;
@@ -2844,9 +2872,11 @@ void print_secret_chat_gw (struct tgl_state *TLSR, void *extra, int success, str
   assert (TLS == TLSR);
   struct in_ev *ev = extra;
   if (ev && !--ev->refcnt) {
-    free (ev);
-    return;
-  }
+  	if (ev->uid < 0){
+  		free (ev);
+  		return;
+  	}
+    }
   if (!success) { print_fail (ev); return; }
   mprint_start (ev);
   if (!enable_json) {
@@ -2868,17 +2898,26 @@ void print_secret_chat_gw (struct tgl_state *TLSR, void *extra, int success, str
 }
 
 void print_dialog_list_gw (struct tgl_state *TLSR, void *extra, int success, int size, tgl_peer_id_t peers[], tgl_message_id_t *last_msg_id[], int unread_count[]) {
+
+	vlogprintf (E_DEBUG, "inside print_dialog_list_gw\n");
   assert (TLS == TLSR);
   struct in_ev *ev = extra;
   if (ev && !--ev->refcnt) {
-    free (ev);
-    return;
+		vlogprintf (E_DEBUG, "uid of ev %lld \n", ev->uid);
+	if (ev->uid < 0){
+		free (ev);
+		return;
+	}
   }
   if (!success) { print_fail (ev); return; }
+  vlogprintf(E_DEBUG, "step forward in printing dialogs\n");
   mprint_start (ev);
+  vlogprintf(E_DEBUG, "step forward in printing dialogs\n");
   if (!enable_json)  {
     mpush_color (ev, COLOR_YELLOW);
+    vlogprintf(E_DEBUG, "step forward in printing dialogs\n");
     int i;
+    vlogprintf(E_DEBUG, "size of dialogs %d\n", size);
     for (i = size - 1; i >= 0; i--) {
       tgl_peer_t *UC;
       switch (tgl_get_peer_type (peers[i])) {
@@ -2902,6 +2941,7 @@ void print_dialog_list_gw (struct tgl_state *TLSR, void *extra, int success, int
           break;
       }
     }
+    vlogprintf(E_DEBUG, "step forward in printing dialogs\n");
     mpop_color (ev);
   } else {
     #ifdef USE_JSON
@@ -3381,8 +3421,10 @@ void print_card_gw (struct tgl_state *TLSR, void *extra, int success, int size, 
   assert (TLSR == TLS);
   struct in_ev *ev = extra;
   if (ev && !--ev->refcnt) {
-    free (ev);
-    return;
+  	if (ev->uid < 0){
+  		free (ev);
+  		return;
+  	}
   }
   if (!success) { print_fail (ev); return; }
   mprint_start (ev);
@@ -3414,8 +3456,10 @@ void print_card_gw (struct tgl_state *TLSR, void *extra, int success, int size, 
 void callback_extf (struct tgl_state *TLS, void *extra, int success, const char *buf) {
   struct in_ev *ev = extra;
   if (ev && !--ev->refcnt) {
-    free (ev);
-    return;
+  	if (ev->uid < 0){
+  		free (ev);
+  		return;
+  	}
   }
   if (!success) { print_fail (ev); return; }
   mprint_start (ev);
@@ -3491,6 +3535,19 @@ struct tgl_update_callback upd_cb = {
   .on_failed_login = on_failed_login
 };
 
+
+void call_command(struct command *command, int argnum, struct arg args[], struct in_ev *ev){
+	vlogprintf (E_DEBUG, "inside call_command");
+	static long long int last_uid = 0;
+	if (ev){
+		ev->uid = -1;
+	} else {
+		 ev = (struct in_ev*)talloc0(sizeof(struct in_ev));
+		 ev->uid = last_uid;
+	}
+	last_uid++;
+	command->fun(command, argnum, args, ev);
+}
 
 void interpreter_ex (char *line, void *ex) {  
   force_end_mode = 1;
@@ -3586,7 +3643,7 @@ void interpreter_ex (char *line, void *ex) {
   }
 
   enum command_argument *flags = command->args;
-  void (*fun)(struct command *, int, struct arg[], struct in_ev *) = command->fun;
+  // void (*fun)(struct command *, int, struct arg[], struct in_ev *) = command->fun;
   int args_num = 0;
   static struct arg args[1000];
   while (1) {
@@ -3607,7 +3664,8 @@ void interpreter_ex (char *line, void *ex) {
       if (cur_token_end_str) {
         int z;
         for (z = 0; z < count; z ++) {
-          fun (command, args_num, args, ex);
+//          fun (command, args_num, args, ex);
+        	call_command(command, args_num, args, ex);
         }
       } else {
         fail_interface (TLS, ex, ENOSYS, "too many args #%d", args_num);
@@ -3625,7 +3683,8 @@ void interpreter_ex (char *line, void *ex) {
         args[args_num ++].str = strndup (cur_token, cur_token_len);
         int z;
         for (z = 0; z < count; z ++) {
-          fun (command, args_num, args, ex);
+        	//          fun (command, args_num, args, ex);
+        	        	call_command(command, args_num, args, ex);
         }
         break;
       }
@@ -3637,7 +3696,8 @@ void interpreter_ex (char *line, void *ex) {
     if (period && cur_token_end_str) {
       int z;
       for (z = 0; z < count; z ++) {
-        fun (command, args_num, args, ex);
+    	  //          fun (command, args_num, args, ex);
+    	          	call_command(command, args_num, args, ex);
       }
       break;
     }
