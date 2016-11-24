@@ -3539,18 +3539,28 @@ struct tgl_update_callback upd_cb = {
 
 void call_command(struct command *command, int argnum, struct arg args[], struct in_ev *ev){
 	vlogprintf (E_DEBUG, "inside call_command");
+//	static int last_uid = 0;
+//	if (ev){
+//		ev->uid = -1;
+//	} else {
+//		 ev = (struct in_ev*)talloc0(sizeof(struct in_ev));
+//		 ev->uid = last_uid;
+//	}
+//	last_uid++;
+	command->fun(command, argnum, args, ev);
+}
+
+void interpreter_ex (char *line, void *ex) {
 	static int last_uid = 0;
+	struct in_ev* ev = (struct in_ev*)ex;
 	if (ev){
 		ev->uid = -1;
 	} else {
 		 ev = (struct in_ev*)talloc0(sizeof(struct in_ev));
 		 ev->uid = last_uid;
 	}
+	ex = ev;
 	last_uid++;
-	command->fun(command, argnum, args, ev);
-}
-
-void interpreter_ex (char *line, void *ex) {  
   force_end_mode = 1;
   assert (!in_readline);
   in_readline = 1;

@@ -4,8 +4,8 @@ objs/structures.o: tgl/structures.c /usr/include/stdc-predef.h config.h \
  /usr/include/x86_64-linux-gnu/bits/wordsize.h \
  /usr/include/x86_64-linux-gnu/gnu/stubs.h \
  /usr/include/x86_64-linux-gnu/gnu/stubs-64.h /usr/include/string.h \
- /usr/lib/gcc/x86_64-linux-gnu/4.9/include/stddef.h \
- /usr/include/xlocale.h /usr/include/x86_64-linux-gnu/bits/string.h \
+ /usr/lib/gcc/x86_64-linux-gnu/5/include/stddef.h /usr/include/xlocale.h \
+ /usr/include/x86_64-linux-gnu/bits/string.h \
  /usr/include/x86_64-linux-gnu/bits/string2.h /usr/include/endian.h \
  /usr/include/x86_64-linux-gnu/bits/endian.h \
  /usr/include/x86_64-linux-gnu/bits/byteswap.h \
@@ -27,7 +27,7 @@ objs/structures.o: tgl/structures.c /usr/include/stdc-predef.h config.h \
  /usr/include/x86_64-linux-gnu/bits/stdlib-bsearch.h \
  /usr/include/x86_64-linux-gnu/bits/stdlib-float.h \
  /usr/include/x86_64-linux-gnu/bits/stdlib.h auto/auto-types.h tgl/auto.h \
- tgl/tools.h /usr/lib/gcc/x86_64-linux-gnu/4.9/include/stdarg.h \
+ tgl/tools.h /usr/lib/gcc/x86_64-linux-gnu/5/include/stdarg.h \
  tgl/crypto/err.h /usr/include/stdio.h /usr/include/libio.h \
  /usr/include/_G_config.h /usr/include/wchar.h \
  /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
@@ -59,7 +59,7 @@ config.h:
 
 /usr/include/string.h:
 
-/usr/lib/gcc/x86_64-linux-gnu/4.9/include/stddef.h:
+/usr/lib/gcc/x86_64-linux-gnu/5/include/stddef.h:
 
 /usr/include/xlocale.h:
 
@@ -131,7 +131,7 @@ tgl/auto.h:
 
 tgl/tools.h:
 
-/usr/lib/gcc/x86_64-linux-gnu/4.9/include/stdarg.h:
+/usr/lib/gcc/x86_64-linux-gnu/5/include/stdarg.h:
 
 tgl/crypto/err.h:
 

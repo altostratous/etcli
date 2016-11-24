@@ -7,7 +7,7 @@ objs/queries.o: tgl/queries.c /usr/include/stdc-predef.h config.h \
  /usr/include/x86_64-linux-gnu/bits/errno.h /usr/include/linux/errno.h \
  /usr/include/x86_64-linux-gnu/asm/errno.h \
  /usr/include/asm-generic/errno.h /usr/include/asm-generic/errno-base.h \
- /usr/include/string.h /usr/lib/gcc/x86_64-linux-gnu/4.9/include/stddef.h \
+ /usr/include/string.h /usr/lib/gcc/x86_64-linux-gnu/5/include/stddef.h \
  /usr/include/xlocale.h /usr/include/x86_64-linux-gnu/bits/string.h \
  /usr/include/x86_64-linux-gnu/bits/string2.h /usr/include/endian.h \
  /usr/include/x86_64-linux-gnu/bits/endian.h \
@@ -43,7 +43,7 @@ objs/queries.o: tgl/queries.c /usr/include/stdc-predef.h config.h \
  tgl/crypto/bn.h tgl/tgl.h tgl/tgl-layout.h tgl/queries.h \
  tgl/tgl-structures.h /usr/include/assert.h tgl/tgl-fetch.h \
  auto/auto-types.h tgl/auto.h tgl/tools.h \
- /usr/lib/gcc/x86_64-linux-gnu/4.9/include/stdarg.h tgl/crypto/err.h \
+ /usr/lib/gcc/x86_64-linux-gnu/5/include/stdarg.h tgl/crypto/err.h \
  /usr/include/stdio.h /usr/include/libio.h /usr/include/_G_config.h \
  /usr/include/wchar.h /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
  /usr/include/x86_64-linux-gnu/bits/sys_errlist.h \
@@ -85,7 +85,7 @@ config.h:
 
 /usr/include/string.h:
 
-/usr/lib/gcc/x86_64-linux-gnu/4.9/include/stddef.h:
+/usr/lib/gcc/x86_64-linux-gnu/5/include/stddef.h:
 
 /usr/include/xlocale.h:
 
@@ -191,7 +191,7 @@ tgl/auto.h:
 
 tgl/tools.h:
 
-/usr/lib/gcc/x86_64-linux-gnu/4.9/include/stdarg.h:
+/usr/lib/gcc/x86_64-linux-gnu/5/include/stdarg.h:
 
 tgl/crypto/err.h:
 

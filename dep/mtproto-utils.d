@@ -11,8 +11,8 @@ objs/mtproto-utils.o: tgl/mtproto-utils.c /usr/include/stdc-predef.h \
  /usr/include/x86_64-linux-gnu/bits/typesizes.h \
  /usr/include/x86_64-linux-gnu/bits/byteswap-16.h tgl/tgl.h \
  tgl/tgl-layout.h /usr/include/string.h \
- /usr/lib/gcc/x86_64-linux-gnu/4.9/include/stddef.h \
- /usr/include/xlocale.h /usr/include/x86_64-linux-gnu/bits/string.h \
+ /usr/lib/gcc/x86_64-linux-gnu/5/include/stddef.h /usr/include/xlocale.h \
+ /usr/include/x86_64-linux-gnu/bits/string.h \
  /usr/include/x86_64-linux-gnu/bits/string2.h /usr/include/stdlib.h \
  /usr/include/x86_64-linux-gnu/bits/string3.h \
  /usr/include/x86_64-linux-gnu/bits/waitflags.h \
@@ -28,7 +28,7 @@ objs/mtproto-utils.o: tgl/mtproto-utils.c /usr/include/stdc-predef.h \
  /usr/include/x86_64-linux-gnu/bits/stdlib-bsearch.h \
  /usr/include/x86_64-linux-gnu/bits/stdlib-float.h \
  /usr/include/x86_64-linux-gnu/bits/stdlib.h tgl/tools.h \
- /usr/lib/gcc/x86_64-linux-gnu/4.9/include/stdarg.h /usr/include/assert.h \
+ /usr/lib/gcc/x86_64-linux-gnu/5/include/stdarg.h /usr/include/assert.h \
  tgl/crypto/err.h /usr/include/stdio.h /usr/include/libio.h \
  /usr/include/_G_config.h /usr/include/wchar.h \
  /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
@@ -73,7 +73,7 @@ tgl/tgl-layout.h:
 
 /usr/include/string.h:
 
-/usr/lib/gcc/x86_64-linux-gnu/4.9/include/stddef.h:
+/usr/lib/gcc/x86_64-linux-gnu/5/include/stddef.h:
 
 /usr/include/xlocale.h:
 
@@ -117,7 +117,7 @@ tgl/tgl-layout.h:
 
 tgl/tools.h:
 
-/usr/lib/gcc/x86_64-linux-gnu/4.9/include/stdarg.h:
+/usr/lib/gcc/x86_64-linux-gnu/5/include/stdarg.h:
 
 /usr/include/assert.h:
 
